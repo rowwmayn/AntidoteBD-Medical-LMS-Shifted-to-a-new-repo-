@@ -1,10 +1,27 @@
-import mongoose from "mongoose";
-import User from "./models/User.js";
-import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import mongoose from "mongoose"; // Add this line
+import User from "../models/User.js";
+import bcrypt from "bcrypt";
 
-dotenv.config();
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+// Fix for ES module path issues
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env file from the correct location
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
+console.log("MONGO_URI:", process.env.MONGO_URI); // Debugging: Check if it's loading correctly
+
+const mongoUri = process.env.MONGO_URI;
+
+if (!mongoUri) {
+  console.error("MONGO_URI is not defined in the environment variables.");
+  process.exit(1);
+}
+
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const createAdmin = async () => {
   try {
@@ -14,23 +31,21 @@ const createAdmin = async () => {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash("your-secure-password", 10); // Change password before running
+    const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
     const adminUser = new User({
-      name: "Admin",
-      email: "admin@example.com",
+      name: process.env.ADMIN_NAME,
+      email: process.env.ADMIN_EMAIL,
       password: hashedPassword,
-      facebookId: "https://facebook.com/admin",
-      institute: "Admin Institute",
-      roll: "0001",
+      facebookId: process.env.ADMIN_FACEBOOK_ID,
+      institute: process.env.ADMIN_INSTITUTE,
+      roll: process.env.ADMIN_ROLL,
       role: "admin",
     });
 
     await adminUser.save();
     console.log("Admin user created successfully!");
   } catch (error) {
-    console.error("Error creating admin:", error.message);
-  } finally {
-    mongoose.connection.close();
+    console.error("Error creating admin user:", error);
   }
 };
 

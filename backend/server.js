@@ -1,30 +1,36 @@
 import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import cors from "cors";
 
-// Load environment variables
+// Import routes
+import courseRoutes from "./routes/courses.js";
+import examRoutes from "./routes/exams.js";
+import userRoutes from "./routes/users.js";
+
 dotenv.config();
 
 const app = express();
-app.use(express.json());
+
+// Middleware
 app.use(cors());
+app.use(express.json());
 
 // Connect to MongoDB Atlas
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB Connected"))
+  .connect(process.env.MONGO_URI, { /* no deprecated options needed with new driver */ })
+  .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// Test Route
+// Routes
+app.use("/api/courses", courseRoutes);
+app.use("/api/exams", examRoutes);
+app.use("/api/users", userRoutes);
+
+// Default route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
