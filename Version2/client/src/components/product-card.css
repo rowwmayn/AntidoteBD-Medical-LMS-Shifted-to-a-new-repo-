@@ -1,0 +1,19 @@
+.product-card {
+  @apply relative overflow-hidden transition-all duration-300;
+}
+
+.product-card:hover {
+  @apply transform -translate-y-1;
+}
+
+.product-card-course {
+  @apply bg-red-50 border-red-200;
+}
+
+.product-card-exam {
+  @apply bg-blue-50 border-blue-200;
+}
+
+.product-badge {
+  @apply absolute top-4 right-4 px-2 py-1 rounded-full text-xs font-semibold;
+}
